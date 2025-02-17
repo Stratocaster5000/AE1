@@ -1,6 +1,6 @@
 package sort;
 
-public class MergeSort {
+public class BottomUpMergeSort {
 
     static void merge(int a[], int p, int q, int r) {
         int n1 = q - p + 1;
@@ -30,12 +30,10 @@ public class MergeSort {
         }
     }
 
-    public static void sort(int a[], int p, int r) {
-        if (p < r) {
-            int q = (p + r) / 2;
-            sort(a, p, q);
-            sort(a, q + 1, r);
-            merge(a, p, q, r);
-        }
-    }
+    public static void sort(int[] a, int p, int r){ 
+    int n = r - p; 
+    for (int sz = 1; sz < n; sz = sz+sz) 
+        for (int p = 0; p < n-sz; p += sz+sz) 
+            merge(a, p, p + sz-1, Math.min(p+sz + sz - 1, n - 1)); 
+}
 }
