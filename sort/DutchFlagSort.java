@@ -20,8 +20,7 @@ public class DutchFlagSort {
                     Swap.swap(arr, mid, high);
                     high--;
                 }
-                default ->
-                    throw new IllegalArgumentException("Invalid value: " + arr[mid]);
+
             }
         }
     }
