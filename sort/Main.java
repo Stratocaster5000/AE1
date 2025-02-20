@@ -28,26 +28,16 @@ public class Main {
             return;
         }
 
-        for (File file : files) {
-            if (file.isFile() && file.getName().startsWith("bad") && file.getName().endsWith(".txt")) {
-                System.out.println("\nProcessing file: " + file.getName());
-
-                List<Integer> numbers = readNumbersFromFile(file);
-                if (numbers.isEmpty()) {
-                    continue;
-                }
-
-                int[] arr = numbers.stream().mapToInt(Integer::intValue).toArray();
-
-                Map<String, List<Long>> algorithmTimes = new HashMap<>();
-                for (int run = 1; run <= NUM_RUNS; run++) {
-                    System.out.println("\nRun " + run + ":");
-                    runSortingAlgorithms(arr, algorithmTimes);
-                }
-
-                fileAlgorithmTimes.put(file.getName(), algorithmTimes);
-            }
-        }
+        // Run each sorting algorithm one at a time
+        runSortingAlgorithm(files, "ShellSort", arr -> ShellSort.sort(arr));
+        runSortingAlgorithm(files, "SelectionSort", arr -> SelectionSort.sort(arr));
+        runSortingAlgorithm(files, "QuickSortInsertion", arr -> QuickSortInsertion.sortCutOff(arr, 0, arr.length - 1, 10));
+        runSortingAlgorithm(files, "MergeSort", arr -> MergeSort.sort(arr, 0, arr.length - 1));
+        runSortingAlgorithm(files, "QuickSort", arr -> QuickSort.sort(arr, 0, arr.length - 1));
+        runSortingAlgorithm(files, "Median3Sort", arr -> Median3Sort.sort(arr, 0, arr.length - 1));
+        runSortingAlgorithm(files, "InsertionSort", arr -> InsertionSort.sort(arr, 0, arr.length));
+        runSortingAlgorithm(files, "BottomUpMergeSort", arr -> BottomUpMergeSort.sort(arr, 0, arr.length - 1));
+        runSortingAlgorithm(files, "DutchFlagSort", arr -> DutchFlagSort.sort3Way(arr, 0, arr.length - 1));
 
         printAverageTimingsPerFile();
     }
@@ -69,16 +59,26 @@ public class Main {
         return numbers;
     }
 
-    private static void runSortingAlgorithms(int[] arr, Map<String, List<Long>> algorithmTimes) {
-        runSortWithTimeout("ShellSort", () -> ShellSort.sort(arr.clone()), algorithmTimes);
-        runSortWithTimeout("SelectionSort", () -> SelectionSort.sort(arr.clone()), algorithmTimes);
-        runSortWithTimeout("QuickSortInsertion", () -> QuickSortInsertion.sortCutOff(arr.clone(), 0, arr.length - 1, 10), algorithmTimes);
-        //runSortWithTimeout("DutchFlagSort", () -> DutchFlagSort.dutchFlagSort(arr.clone()), algorithmTimes);
-        runSortWithTimeout("MergeSort", () -> MergeSort.sort(arr.clone(), 0, arr.length - 1), algorithmTimes);
-        runSortWithTimeout("QuickSort", () -> QuickSort.sort(arr.clone(), 0, arr.length - 1), algorithmTimes);
-        runSortWithTimeout("Median3Sort", () -> Median3Sort.sort(arr.clone(), 0, arr.length - 1), algorithmTimes);
-        runSortWithTimeout("InsertionSort", () -> InsertionSort.sort(arr.clone(), 0, arr.length), algorithmTimes);
-        runSortWithTimeout("BottomUpMergeSort", () -> BottomUpMergeSort.sort(arr.clone(), 0, arr.length - 1), algorithmTimes);
+    private static void runSortingAlgorithm(File[] files, String algorithmName, SortingAlgorithm algorithm) {
+        for (File file : files) {
+            if (file.isFile() && file.getName().startsWith("int") && file.getName().endsWith(".txt")) {
+                System.out.println("\nProcessing file: " + file.getName());
+
+                List<Integer> numbers = readNumbersFromFile(file);
+                if (numbers.isEmpty()) {
+                    continue;
+                }
+
+                int[] arr = numbers.stream().mapToInt(Integer::intValue).toArray();
+
+                Map<String, List<Long>> algorithmTimes = fileAlgorithmTimes.computeIfAbsent(file.getName(), k -> new HashMap<>());
+
+                for (int run = 1; run <= NUM_RUNS; run++) {
+                    System.out.println("\nRun " + run + ":");
+                    runSortWithTimeout(algorithmName, () -> algorithm.sort(arr.clone()), algorithmTimes);
+                }
+            }
+        }
     }
 
     private static void runSortWithTimeout(String sortName, Runnable sortTask, Map<String, List<Long>> algorithmTimes) {
@@ -117,5 +117,11 @@ public class Main {
             }
             System.out.println();
         }
+    }
+
+    @FunctionalInterface
+    private interface SortingAlgorithm {
+
+        void sort(int[] arr);
     }
 }
