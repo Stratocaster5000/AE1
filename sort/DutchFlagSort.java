@@ -20,7 +20,8 @@ public class DutchFlagSort {
                     Swap.swap(arr, mid, high);
                     high--;
                 }
-
+                default ->
+                    throw new IllegalArgumentException("Array can only contain 0, 1, or 2");
             }
         }
     }
