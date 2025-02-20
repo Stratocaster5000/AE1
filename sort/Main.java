@@ -29,7 +29,7 @@ public class Main {
         }
 
         for (File file : files) {
-            if (file.isFile() && file.getName().startsWith("int") && file.getName().endsWith(".txt")) {
+            if (file.isFile() && file.getName().startsWith("dutch") && file.getName().endsWith(".txt")) {
                 System.out.println("\nProcessing file: " + file.getName());
 
                 List<Integer> numbers = readNumbersFromFile(file);
